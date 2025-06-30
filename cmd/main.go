@@ -2,9 +2,11 @@ package main
 
 import (
 	"database/sql"
-	"jobqueue/handlers"
-	"jobqueue/services"
-	"jobqueue/utils"
+	"jobqueue/internal"
+	"jobqueue/internal/handlers"
+	"jobqueue/internal/repositories"
+	"jobqueue/internal/services"
+	"jobqueue/internal/utils"
 	"log"
 	"net/http"
 
@@ -14,22 +16,27 @@ import (
 var dbInstance *sql.DB
 
 func main() {
-	_ = godotenv.Load() // Load .env file if present
+	if errEnv := godotenv.Load(); errEnv != nil {
+		utils.InitLogger()
+		utils.Logger.Warn(internal.LogEnvFileNotFound + errEnv.Error())
+	}
 	utils.InitLogger()
-	utils.Logger.Info("Starting Job Queue System...")
+	utils.Logger.Info(internal.LogStartingJobQueue)
 
 	var err error
 	dbInstance, err = utils.GetDB()
 	if err != nil {
-		utils.Logger.Fatalf("Failed to connect to DB: %v", err)
+		utils.Logger.Fatalf(internal.LogFailedConnectDB, err)
 	}
 
 	// Migrate DB (auto-create table)
 	if err := utils.MigrateDB(dbInstance); err != nil {
-		utils.Logger.Fatalf("DB migration failed: %v", err)
+		utils.Logger.Fatalf(internal.LogDBMigrationFailed, err)
 	}
 
-	handlers.SetDBInstance(dbInstance)
+	repo := &repositories.PostgresJobRepository{DB: dbInstance}
+	jobService := &services.JobService{Repo: repo}
+	handlers.SetJobService(jobService)
 
 	services.StartWorkerPool(dbInstance, 5)
 
