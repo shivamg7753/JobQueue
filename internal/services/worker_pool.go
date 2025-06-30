@@ -7,15 +7,6 @@ import (
 	"sync"
 )
 
-const (
-	StatusCompleted    = "completed"
-	LogWorkerStarted   = "Worker started"
-	LogProcessingJob   = "Processing job"
-	LogFailedUpdateJob = "Failed to update job status in DB"
-	LogCompletedJob    = "Completed job"
-	JobResultPrefix    = "processed: "
-)
-
 type JobPayload struct {
 	ID      int64
 	Payload string
