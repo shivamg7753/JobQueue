@@ -9,6 +9,11 @@ import (
 )
 
 func GetDB() (*sql.DB, error) {
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL != "" {
+		return sql.Open("postgres", databaseURL)
+	}
+
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	user := os.Getenv("DB_USER")
