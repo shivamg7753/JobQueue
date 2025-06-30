@@ -1,6 +1,5 @@
 # jobqueue
 
-[Live Demo on Render](https://jobqueue-2.onrender.com)
 
 A high-performance asynchronous job queue system in Go, with RESTful APIs, worker pool, structured logging, and easy deployment to Render or Docker.
 
